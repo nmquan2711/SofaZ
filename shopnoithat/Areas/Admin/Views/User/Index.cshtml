@@ -1,0 +1,93 @@
+﻿@model PagedList.IPagedList<Models.EF.User>
+
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Quản lý người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section header{
+    Danh sách người dùng}
+@section jsFooter{
+    <script src="/Assets/admin/js/controller/userController.js"></script>
+    }
+
+<div class="card">
+    <div class="card-header">
+
+        <div class="card-header-right">
+            <ul class="list-unstyled card-option">
+                <li><i class="fa fa fa-wrench open-card-option"></i></li>
+                <li><i class="fa fa-window-maximize full-card"></i></li>
+                <li><i class="fa fa-minus minimize-card"></i></li>
+                <li><i class="fa fa-refresh reload-card"></i></li>
+                <li><i class="fa fa-trash close-card"></i></li>
+            </ul>
+        </div>
+
+        @using (Html.BeginForm("Index", "User", FormMethod.Get))
+        {
+            <div class="row form-group">
+                <div class=" col-lg-12">
+                    <div class="col-md-4 float-left ">
+                        <input type="text" class="form-control" name="searchString" value="@ViewBag.SearchString" />
+                    </div>
+                    <div class="col-md-0 col- float-left">
+                        <button style="font-size:16px" type="submit">Tìm kiếm</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="card-block table-border-style">
+        <div class="float-right">
+            <a href="/Admin/User/Create">
+                <span><i class="fa-solid fa-square-plus " style="font-size:large"></i></span>
+                <span style="font-size:large">Thêm mới</span>
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+
+                        <th>Tài khoản</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Trạng thái</th>
+                        <th>#</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row_@item.ID">
+
+                            <td>@item.Username</td>
+                            <td>@item.Name</td>
+                            <td>@item.Email</td>
+                            <td><a href="#" class="btn-active" data-id="@item.ID">@(item.Status? "Kích hoạt" : "Khóa")</a></td>
+                            <td>
+                                <a href="/Admin/User/Edit/@item.ID"><i class="fa-solid fa-pen-to-square"></i></a>
+
+                                |
+                                @Ajax.ActionLink("Xóa", "Delete", new { @id = item.ID }, new AjaxOptions
+                            {
+                               Confirm = "Bạn có muốn xóa tài khoản này?",
+                               OnComplete = "$('#row_" + @item.ID + "').remove()",
+                               HttpMethod = "Delete"
+                            })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br>
+            Trang @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) / @Model.PageCount
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, @searchString = @ViewBag.SearchString }))
+        </div>
+    </div>
+</div>
+<!-- Hover table card end -->
+<!-- Contextual classes table starts -->
